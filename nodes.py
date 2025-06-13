@@ -17,7 +17,7 @@ from comfy.ldm.wan.model import sinusoidal_embedding_1d
 
 SUPPORTED_MODELS_MAG_RATIOS = {
     "flux": np.array([1.0]+[1.21094, 1.11719, 1.07812, 1.0625, 1.03906, 1.03125, 1.03906, 1.02344, 1.03125, 1.02344, 0.98047, 1.01562, 1.00781, 1.0, 1.00781, 1.0, 1.00781, 1.0, 1.0, 0.99609, 0.99609, 0.98047, 0.98828, 0.96484, 0.95703, 0.93359, 0.89062]),
-    "chroma": np.array([1.0]+[1.65625, 0.81640625, 2.953125, 1.015625, 0.15625, 0.466796875, 4.78125, 0.291015625, 7.5, 0.283203125, 1.7890625, 1.1875, 0.2216796875, 3.9375, 0.5390625, 5.9375, 0.142578125, 1.953125, 0.2734375, 1.8671875, 0.435546875, 3.296875, 2.953125, 0.3359375, 1.40625, 0.26953125, 1.1953125]),
+    "chroma": np.array([1.0]+[1.21094, 1.11719, 1.07812, 1.0625, 1.03906, 1.03125, 1.03906, 1.02344, 1.03125, 1.02344, 0.98047, 1.01562, 1.00781, 1.0, 1.00781, 1.0, 1.00781, 1.0, 1.0, 0.99609, 0.99609, 0.98047, 0.98828, 0.96484, 0.95703, 0.93359, 0.89062]), # -- assuming, chroma is similar to flux, which actually needs calibration
     "hunyuan_video": np.array([1.0]+[1.0754, 1.27807, 1.11596, 1.09504, 1.05188, 1.00844, 1.05779, 1.00657, 1.04142, 1.03101, 1.00679, 1.02556, 1.00908, 1.06949, 1.05438, 1.02214, 1.02321, 1.03019, 1.00779, 1.03381, 1.01886, 1.01161, 1.02968, 1.00544, 1.02822, 1.00689, 1.02119, 1.0105, 1.01044, 1.01572, 1.02972, 1.0094, 1.02368, 1.0226, 0.98965, 1.01588, 1.02146, 1.0018, 1.01687, 0.99436, 1.00283, 1.01139, 0.97122, 0.98251, 0.94513, 0.97656, 0.90943, 0.85703, 0.75456]),
     "wan2.1_t2v_1.3B": np.array([1.0]*2+[1.0124, 1.02213, 1.00166, 1.0041, 0.99791, 1.00061, 0.99682, 0.99762, 0.99634, 0.99685, 0.99567, 0.99586, 0.99416, 0.99422, 0.99578, 0.99575, 0.9957, 0.99563, 0.99511, 0.99506, 0.99535, 0.99531, 0.99552, 0.99549, 0.99541, 0.99539, 0.9954, 0.99536, 0.99489, 0.99485, 0.99518, 0.99514, 0.99484, 0.99478, 0.99481, 0.99479, 0.99415, 0.99413, 0.99419, 0.99416, 0.99396, 0.99393, 0.99388, 0.99386, 0.99349, 0.99349, 0.99309, 0.99304, 0.9927, 0.9927, 0.99228, 0.99226, 0.99171, 0.9917, 0.99137, 0.99135, 0.99068, 0.99063, 0.99005, 0.99003, 0.98944, 0.98942, 0.98849, 0.98849, 0.98758, 0.98757, 0.98644, 0.98643, 0.98504, 0.98503, 0.9836, 0.98359, 0.98202, 0.98201, 0.97977, 0.97978, 0.97717, 0.97718, 0.9741, 0.97411, 0.97003, 0.97002, 0.96538, 0.96541, 0.9593, 0.95933, 0.95086, 0.95089, 0.94013, 0.94019, 0.92402, 0.92414, 0.90241, 0.9026, 0.86821, 0.86868, 0.81838, 0.81939]),
     "wan2.1_t2v_14B": np.array([1.0]*2+[1.02504, 1.03017, 1.00025, 1.00251, 0.9985, 0.99962, 0.99779, 0.99771, 0.9966, 0.99658, 0.99482, 0.99476, 0.99467, 0.99451, 0.99664, 0.99656, 0.99434, 0.99431, 0.99533, 0.99545, 0.99468, 0.99465, 0.99438, 0.99434, 0.99516, 0.99517, 0.99384, 0.9938, 0.99404, 0.99401, 0.99517, 0.99516, 0.99409, 0.99408, 0.99428, 0.99426, 0.99347, 0.99343, 0.99418, 0.99416, 0.99271, 0.99269, 0.99313, 0.99311, 0.99215, 0.99215, 0.99218, 0.99215, 0.99216, 0.99217, 0.99163, 0.99161, 0.99138, 0.99135, 0.98982, 0.9898, 0.98996, 0.98995, 0.9887, 0.98866, 0.98772, 0.9877, 0.98767, 0.98765, 0.98573, 0.9857, 0.98501, 0.98498, 0.9838, 0.98376, 0.98177, 0.98173, 0.98037, 0.98035, 0.97678, 0.97677, 0.97546, 0.97543, 0.97184, 0.97183, 0.96711, 0.96708, 0.96349, 0.96345, 0.95629, 0.95625, 0.94926, 0.94929, 0.93964, 0.93961, 0.92511, 0.92504, 0.90693, 0.90678, 0.8796, 0.87945, 0.86111, 0.86189]),
@@ -27,7 +27,7 @@ SUPPORTED_MODELS_MAG_RATIOS = {
 
 
 def magcache_flux_forward(
-        self,   
+        self,
         img: Tensor,
         img_ids: Tensor,
         txt: Tensor,
@@ -318,268 +318,6 @@ def magcache_chroma_forward(
         final_mod = self.get_modulations(mod_vectors, "final")
         img = self.final_layer(img, vec=final_mod)
         return img
-
-def magcache_calibration_forward(
-        self,
-        img: Tensor,
-        img_ids: Tensor,
-        txt: Tensor,
-        txt_ids: Tensor,
-        timesteps: Tensor,
-        guidance: Tensor = None,
-        control = None,
-        transformer_options={},
-        attn_mask: Tensor = None,
-    ) -> Tensor:
-        patches_replace = transformer_options.get("patches_replace", {})
-        magcache_thresh = transformer_options.get("magcache_thresh")
-        magcache_K = transformer_options.get("magcache_K")
-        mag_ratios = transformer_options.get("mag_ratios")
-        enable_magcache = transformer_options.get("enable_magcache", False)
-        cur_step = transformer_options.get("current_step")
-        
-        if not hasattr(self, 'calibration_data'):
-            self.calibration_data = {
-                'norm_ratios': [],
-                'norm_stds': [],
-                'cos_dists': [],
-                'step_count': 0
-            }
-        
-        if img.ndim != 3 or txt.ndim != 3:
-            raise ValueError("Input img and txt tensors must have 3 dimensions.")
-            
-        # running on sequences img
-        img = self.img_in(img)
-        
-        # Chroma-specific modulation vectors setup
-        mod_index_length = 344
-        distill_timestep = timestep_embedding(timesteps.detach().clone(), 16).to(img.device, img.dtype)
-        distil_guidance = timestep_embedding(guidance.detach().clone(), 16).to(img.device, img.dtype)
-        modulation_index = timestep_embedding(torch.arange(mod_index_length, device=img.device), 32).to(img.device, img.dtype)
-        modulation_index = modulation_index.unsqueeze(0).repeat(img.shape[0], 1, 1).to(img.device, img.dtype)
-        timestep_guidance = torch.cat([distill_timestep, distil_guidance], dim=1).unsqueeze(1).repeat(1, mod_index_length, 1).to(img.dtype).to(img.device, img.dtype)
-        input_vec = torch.cat([timestep_guidance, modulation_index], dim=-1).to(img.device, img.dtype)
-        mod_vectors = self.distilled_guidance_layer(input_vec)
-        
-        txt = self.txt_in(txt)
-        ids = torch.cat((txt_ids, img_ids), dim=1)
-        pe = self.pe_embedder(ids)
-        blocks_replace = patches_replace.get("dit", {})
-        
-        # MagCache initialization
-        if not hasattr(self, 'accumulated_err'):
-            self.accumulated_err = 0
-            self.accumulated_ratio = 1
-            self.accumulated_steps = 0
-            
-        skip_forward = False
-        if enable_magcache and cur_step not in [11]:  # Skip certain steps if needed
-            cur_mag_ratio = mag_ratios[cur_step]
-            self.accumulated_ratio = self.accumulated_ratio * cur_mag_ratio
-            self.accumulated_steps += 1
-            cur_skip_err = np.abs(1 - self.accumulated_ratio)
-            self.accumulated_err += cur_skip_err
-            
-            if self.accumulated_err < magcache_thresh and self.accumulated_steps <= magcache_K:
-                skip_forward = True
-            else:
-                self.accumulated_err = 0
-                self.accumulated_steps = 0
-                self.accumulated_ratio = 1.0
-                
-        if skip_forward:
-            img += self.residual_cache.to(img.device)
-        else:
-            ori_img = img.clone()
-            for i, block in enumerate(self.double_blocks):
-                if i not in self.skip_mmdit:
-                    double_mod = (
-                        self.get_modulations(mod_vectors, "double_img", idx=i),
-                        self.get_modulations(mod_vectors, "double_txt", idx=i),
-                    )
-                    if ("double_block", i) in blocks_replace:
-                        def block_wrap(args):
-                            out = {}
-                            out["img"], out["txt"] = block(img=args["img"],
-                                                         txt=args["txt"],
-                                                         vec=args["vec"],
-                                                         pe=args["pe"],
-                                                         attn_mask=args.get("attn_mask"))
-                            return out
-                        out = blocks_replace[("double_block", i)]({"img": img,
-                                                                   "txt": txt,
-                                                                   "vec": double_mod,
-                                                                   "pe": pe,
-                                                                   "attn_mask": attn_mask},
-                                                                  {"original_block": block_wrap})
-                        txt = out["txt"]
-                        img = out["img"]
-                    else:
-                        img, txt = block(img=img,
-                                       txt=txt,
-                                       vec=double_mod,
-                                       pe=pe,
-                                       attn_mask=attn_mask)
-                    if control is not None:  # Controlnet
-                        control_i = control.get("input")
-                        if i < len(control_i):
-                            add = control_i[i]
-                            if add is not None:
-                                img += add
-                                
-            img = torch.cat((txt, img), 1)
-            for i, block in enumerate(self.single_blocks):
-                if i not in self.skip_dit:
-                    single_mod = self.get_modulations(mod_vectors, "single", idx=i)
-                    if ("single_block", i) in blocks_replace:
-                        def block_wrap(args):
-                            out = {}
-                            out["img"] = block(args["img"],
-                                             vec=args["vec"],
-                                             pe=args["pe"],
-                                             attn_mask=args.get("attn_mask"))
-                            return out
-                        out = blocks_replace[("single_block", i)]({"img": img,
-                                                                 "vec": single_mod,
-                                                                 "pe": pe,
-                                                                 "attn_mask": attn_mask},
-                                                                {"original_block": block_wrap})
-                        img = out["img"]
-                    else:
-                        img = block(img, vec=single_mod, pe=pe, attn_mask=attn_mask)
-                    if control is not None:  # Controlnet
-                        control_o = control.get("output")
-                        if i < len(control_o):
-                            add = control_o[i]
-                            if add is not None:
-                                img[:, txt.shape[1]:, ...] += add
-                                
-            img = img[:, txt.shape[1]:, ...]
-            self.residual_cache = (img - ori_img).to(mm.unet_offload_device())
-            
-        cur_residual = img - ori_img
-        if self.calibration_data['step_count'] >= 1:
-            # Calculate calibration metrics
-            norm_ratio = (cur_residual.norm(dim=-1) / self.previous_residual.norm(dim=-1)).mean().item()
-            norm_std = (cur_residual.norm(dim=-1) / self.previous_residual.norm(dim=-1)).std().item()
-            cos_dist = (1 - torch.nn.functional.cosine_similarity(cur_residual, self.previous_residual, dim=-1, eps=1e-8)).mean().item()
-            
-            # Store metrics
-            self.calibration_data['norm_ratios'].append(norm_ratio)
-            self.calibration_data['norm_stds'].append(norm_std)
-            self.calibration_data['cos_dists'].append(cos_dist)
-        
-        self.previous_residual = cur_residual.detach()
-        self.calibration_data['step_count'] += 1    
-        
-        final_mod = self.get_modulations(mod_vectors, "final")
-        img = self.final_layer(img, vec=final_mod)
-        
-        return img
-
-class MagCacheCalibration:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "model": ("MODEL", {"tooltip": "Model to calibrate"}),
-                "num_steps": ("INT", {"default": 28, "min": 10, "max": 100, "step": 1, "tooltip": "Number of calibration steps"}),
-                "seed": ("INT", {"default": 42, "tooltip": "Random seed"}),
-                "latent": ("LATENT", {"tooltip": "Latent to calibrate"}),
-                "text_input": ("CONDITIONING", {"tooltip": "Example conditioning"}),
-                "guidance_scale": ("FLOAT", {"default": 7.0, "tooltip": "Guidance scale"}),
-            }
-        }
-    
-    RETURN_TYPES = ("MODEL", "LIST", "LIST", "LIST")
-    RETURN_NAMES = ("model", "norm_ratios", "norm_stds", "cos_dists")
-    FUNCTION = "run_calibration"
-    CATEGORY = "MagCache"
-    TITLE = "MagCache Calibration"
-
-    def run_calibration(self, model, num_steps, seed, latent, text_input, guidance_scale):
-        # Clone model to avoid modifying original
-        #cal_model = model.clone()
-        cal_model = model
-        diffusion_model = cal_model.get_model_object("diffusion_model")
-        
-        # Patch forward method for calibration
-        original_forward = diffusion_model.forward
-        diffusion_model.forward = magcache_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
-        
-        # Initialize calibration state
-        diffusion_model.calibration_data = {
-            'norm_ratios': [],
-            'norm_stds': [],
-            'cos_dists': [],
-            'step_count': 0
-        }
-        diffusion_model.previous_residual = None
-        
-        # Create dummy inputs
-        device = cal_model.load_device
-        dtype = next(diffusion_model.parameters()).dtype
-        
-        # Image input (adjust dimensions according to your model)
-        img = latent["samples"]
-        
-        # Text input
-        txt = text_input[0][0]
-        
-        bs, c, h, w = img.shape
-        patch_size = 2
-        img = comfy.ldm.common_dit.pad_to_patch_size(img, (patch_size, patch_size))
-
-        from einops import rearrange, repeat
-        img = rearrange(img, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=patch_size, pw=patch_size)
-
-        h_len = ((h + (patch_size // 2)) // patch_size)
-        w_len = ((w + (patch_size // 2)) // patch_size)
-        img_ids = torch.zeros((h_len, w_len, 3), device=device, dtype=dtype)
-        img_ids[:, :, 1] = img_ids[:, :, 1] + torch.linspace(0, h_len - 1, steps=h_len, device=device, dtype=dtype).unsqueeze(1)
-        img_ids[:, :, 2] = img_ids[:, :, 2] + torch.linspace(0, w_len - 1, steps=w_len, device=device, dtype=dtype).unsqueeze(0)
-        img_ids = repeat(img_ids, "h w c -> b (h w) c", b=bs)
-
-        txt_ids = torch.zeros((bs, txt.shape[1], 3), device=device, dtype=dtype)
-        
-        # Timesteps
-        timesteps = torch.linspace(0, 999, num_steps, device=device, dtype=dtype).unsqueeze(0)
-        
-        guidance = torch.tensor([guidance_scale], device=device, dtype=dtype)
-        guidance = guidance.expand(img.shape[0])
-        
-        diffusion_model = diffusion_model.to(device)
-        print(device)
-        print(dtype, img.dtype, img_ids.dtype, txt.dtype, txt_ids.dtype, timesteps.dtype, guidance.dtype)
-        import tqdm
-        # Run calibration steps
-        with torch.no_grad():
-            for i in tqdm.tqdm(range(num_steps)):
-                _ = diffusion_model(
-                    img=img.to(device=device, dtype=dtype),
-                    img_ids=img_ids,
-                    txt=txt.to(device=device, dtype=dtype),
-                    txt_ids=txt_ids,
-                    timesteps=timesteps[:, i],
-                    guidance=guidance
-                )
-        
-        # Collect results
-        norm_ratios = diffusion_model.calibration_data['norm_ratios']
-        norm_stds = diffusion_model.calibration_data['norm_stds']
-        cos_dists = diffusion_model.calibration_data['cos_dists']
-        
-        # Restore original forward
-        diffusion_model.forward = original_forward
-        
-        # Clean up
-        del diffusion_model.calibration_data
-        del diffusion_model.previous_residual
-        
-        print(norm_ratios)
-        
-        return (model, norm_ratios, norm_stds, cos_dists)
 
 def magcache_hunyuanvideo_forward(
         self,
@@ -1041,8 +779,7 @@ class CompileModel:
 
 NODE_CLASS_MAPPINGS = {
     "MagCache": MagCache,
-    "MagCacheCompileModel": CompileModel,
-    "MagCacheCalibration": MagCacheCalibration
+    "CompileModel": CompileModel
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {k: v.TITLE for k, v in NODE_CLASS_MAPPINGS.items()}
