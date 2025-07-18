@@ -1,3 +1,34 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=Zehong-Ma&project=ComfyUI-MagCache&lang=id">Bahasa Indonesia</a>
+      </div>
+    </div>
+  </details>
+</div>
+
 # ComfyUI-MagCache
 
 ## 🫖 Introduction 
