@@ -182,6 +182,363 @@ def magcache_flux_calibration_forward(
         
         return img
 
+def magcache_qwen_image_calibration_forward(
+        self,
+        x,
+        timesteps,
+        context,
+        attention_mask=None,
+        guidance: torch.Tensor = None,
+        ref_latents=None,
+        transformer_options={},
+        control=None,
+        **kwargs
+    ):
+        timestep = timesteps
+        encoder_hidden_states = context
+        encoder_hidden_states_mask = attention_mask
+
+        hidden_states, img_ids, orig_shape = self.process_img(x)
+        num_embeds = hidden_states.shape[1]
+
+        if ref_latents is not None:
+            h = 0
+            w = 0
+            index = 0
+            index_ref_method = kwargs.get("ref_latents_method", "index") == "index"
+            for ref in ref_latents:
+                if index_ref_method:
+                    index += 1
+                    h_offset = 0
+                    w_offset = 0
+                else:
+                    index = 1
+                    h_offset = 0
+                    w_offset = 0
+                    if ref.shape[-2] + h > ref.shape[-1] + w:
+                        w_offset = w
+                    else:
+                        h_offset = h
+                    h = max(h, ref.shape[-2] + h_offset)
+                    w = max(w, ref.shape[-1] + w_offset)
+
+                kontext, kontext_ids, _ = self.process_img(ref, index=index, h_offset=h_offset, w_offset=w_offset)
+                hidden_states = torch.cat([hidden_states, kontext], dim=1)
+                img_ids = torch.cat([img_ids, kontext_ids], dim=1)
+
+        txt_start = round(max(((x.shape[-1] + (self.patch_size // 2)) // self.patch_size) // 2, ((x.shape[-2] + (self.patch_size // 2)) // self.patch_size) // 2))
+        txt_ids = torch.arange(txt_start, txt_start + context.shape[1], device=x.device).reshape(1, -1, 1).repeat(x.shape[0], 1, 3)
+        ids = torch.cat((txt_ids, img_ids), dim=1)
+        image_rotary_emb = self.pe_embedder(ids).to(x.dtype).contiguous()
+        del ids, txt_ids, img_ids
+
+        hidden_states = self.img_in(hidden_states)
+        encoder_hidden_states = self.txt_norm(encoder_hidden_states)
+        encoder_hidden_states = self.txt_in(encoder_hidden_states)
+
+        if guidance is not None:
+            guidance = guidance * 1000
+
+        temb = (
+            self.time_text_embed(timestep, hidden_states)
+            if guidance is None
+            else self.time_text_embed(timestep, guidance, hidden_states)
+        )
+
+        patches_replace = transformer_options.get("patches_replace", {})
+        patches = transformer_options.get("patches", {})
+        blocks_replace = patches_replace.get("dit", {})
+        
+        total_infer_steps = transformer_options.get("total_infer_steps")
+    
+        if not hasattr(self, 'calibration_data'):
+            self.calibration_data = {
+                'norm_ratios': [],
+                'norm_stds': [],
+                'cos_dists': [],
+                'step_count': 0
+            }
+            self.previous_residual = [None, None]
+        if total_infer_steps*2 == self.calibration_data['step_count']: # del cache when calibration multiple times
+            del self.calibration_data
+            self.calibration_data = {
+                'norm_ratios': [],
+                'norm_stds': [],
+                'cos_dists': [],
+                'step_count': 0
+            }
+            self.previous_residual = [None, None]
+        
+        ori_hidden_states = hidden_states.clone()
+        for i, block in enumerate(self.transformer_blocks):
+            if ("double_block", i) in blocks_replace:
+                def block_wrap(args):
+                    out = {}
+                    out["txt"], out["img"] = block(hidden_states=args["img"], encoder_hidden_states=args["txt"], encoder_hidden_states_mask=encoder_hidden_states_mask, temb=args["vec"], image_rotary_emb=args["pe"], transformer_options=args["transformer_options"])
+                    return out
+                out = blocks_replace[("double_block", i)]({"img": hidden_states, "txt": encoder_hidden_states, "vec": temb, "pe": image_rotary_emb, "transformer_options": transformer_options}, {"original_block": block_wrap})
+                hidden_states = out["img"]
+                encoder_hidden_states = out["txt"]
+            else:
+                encoder_hidden_states, hidden_states = block(
+                    hidden_states=hidden_states,
+                    encoder_hidden_states=encoder_hidden_states,
+                    encoder_hidden_states_mask=encoder_hidden_states_mask,
+                    temb=temb,
+                    image_rotary_emb=image_rotary_emb,
+                    transformer_options=transformer_options,
+                )
+
+            if "double_block" in patches:
+                for p in patches["double_block"]:
+                    out = p({"img": hidden_states, "txt": encoder_hidden_states, "x": x, "block_index": i, "transformer_options": transformer_options})
+                    hidden_states = out["img"]
+                    encoder_hidden_states = out["txt"]
+
+            if control is not None: # Controlnet
+                control_i = control.get("input")
+                if i < len(control_i):
+                    add = control_i[i]
+                    if add is not None:
+                        hidden_states[:, :add.shape[1]] += add
+        
+        cur_residual = hidden_states - ori_hidden_states
+        if self.calibration_data['step_count'] >= 2:
+            # Calculate calibration metrics
+            norm_ratio = (cur_residual.norm(dim=-1) / self.previous_residual[self.calibration_data["step_count"]%2].norm(dim=-1)).mean().item()
+            norm_std = (cur_residual.norm(dim=-1) / self.previous_residual[self.calibration_data["step_count"]%2].norm(dim=-1)).std().item()
+            cos_dist = (1 - torch.nn.functional.cosine_similarity(cur_residual, self.previous_residual[self.calibration_data["step_count"]%2], dim=-1, eps=1e-8)).mean().item()
+            
+            # Store metrics
+            self.calibration_data['norm_ratios'].append(round(norm_ratio, 5))
+            self.calibration_data['norm_stds'].append(round(norm_std, 5))
+            self.calibration_data['cos_dists'].append(round(cos_dist, 5))
+            if self.calibration_data['step_count'] >= (total_infer_steps*2-1):
+                print("mag_ratios")
+                print(self.calibration_data['norm_ratios'])
+                print("mag_ratio_std")
+                print(self.calibration_data['norm_stds'])
+                print("mag_cos_dist")
+                print(self.calibration_data['cos_dists'])
+        self.previous_residual[self.calibration_data["step_count"]%2] = cur_residual.detach()
+        self.calibration_data['step_count'] += 1    
+        # print(self.calibration_data['step_count'])
+        
+        
+        hidden_states = self.norm_out(hidden_states, temb)
+        hidden_states = self.proj_out(hidden_states)
+
+        hidden_states = hidden_states[:, :num_embeds].view(orig_shape[0], orig_shape[-2] // 2, orig_shape[-1] // 2, orig_shape[1], 2, 2)
+        hidden_states = hidden_states.permute(0, 3, 1, 4, 2, 5)
+        return hidden_states.reshape(orig_shape)[:, :, :, :x.shape[-2], :x.shape[-1]]
+
+def magcache_hunyuan15_calibration_forward(
+        self,
+        img: Tensor,
+        img_ids: Tensor,
+        txt: Tensor,
+        txt_ids: Tensor,
+        txt_mask: Tensor,
+        timesteps: Tensor,
+        y: Tensor = None,
+        txt_byt5=None,
+        clip_fea=None,
+        guidance: Tensor = None,
+        guiding_frame_index=None,
+        ref_latent=None,
+        disable_time_r=False,
+        control=None,
+        transformer_options={},
+    ) -> Tensor:
+        patches_replace = transformer_options.get("patches_replace", {})
+        total_infer_steps = transformer_options.get("total_infer_steps")
+    
+        if not hasattr(self, 'calibration_data'):
+            self.calibration_data = {
+                'norm_ratios': [],
+                'norm_stds': [],
+                'cos_dists': [],
+                'step_count': 0
+            }
+            self.previous_residual = [None, None]
+        if total_infer_steps*2 == self.calibration_data['step_count']: # del cache when calibration multiple times
+            del self.calibration_data
+            self.calibration_data = {
+                'norm_ratios': [],
+                'norm_stds': [],
+                'cos_dists': [],
+                'step_count': 0
+            }
+            self.previous_residual = [None, None]
+        
+        initial_shape = list(img.shape)
+        # running on sequences img
+        img = self.img_in(img)
+        vec = self.time_in(timestep_embedding(timesteps, 256, time_factor=1.0).to(img.dtype))
+
+        if (self.time_r_in is not None) and (not disable_time_r):
+            w = torch.where(transformer_options['sigmas'][0] == transformer_options['sample_sigmas'])[0]  # This most likely could be improved
+            if len(w) > 0:
+                timesteps_r = transformer_options['sample_sigmas'][w[0] + 1]
+                timesteps_r = timesteps_r.unsqueeze(0).to(device=timesteps.device, dtype=timesteps.dtype)
+                vec_r = self.time_r_in(timestep_embedding(timesteps_r, 256, time_factor=1000.0).to(img.dtype))
+                vec = (vec + vec_r) / 2
+
+        if ref_latent is not None:
+            ref_latent_ids = self.img_ids(ref_latent)
+            ref_latent = self.img_in(ref_latent)
+            img = torch.cat([ref_latent, img], dim=-2)
+            ref_latent_ids[..., 0] = -1
+            ref_latent_ids[..., 2] += (initial_shape[-1] // self.patch_size[-1])
+            img_ids = torch.cat([ref_latent_ids, img_ids], dim=-2)
+
+        if guiding_frame_index is not None:
+            token_replace_vec = self.time_in(timestep_embedding(guiding_frame_index, 256, time_factor=1.0))
+            if self.vector_in is not None:
+                vec_ = self.vector_in(y[:, :self.params.vec_in_dim])
+                vec = torch.cat([(vec_ + token_replace_vec).unsqueeze(1), (vec_ + vec).unsqueeze(1)], dim=1)
+            else:
+                vec = torch.cat([(token_replace_vec).unsqueeze(1), (vec).unsqueeze(1)], dim=1)
+            frame_tokens = (initial_shape[-1] // self.patch_size[-1]) * (initial_shape[-2] // self.patch_size[-2])
+            modulation_dims = [(0, frame_tokens, 0), (frame_tokens, None, 1)]
+            modulation_dims_txt = [(0, None, 1)]
+        else:
+            if self.vector_in is not None:
+                vec = vec + self.vector_in(y[:, :self.params.vec_in_dim])
+            modulation_dims = None
+            modulation_dims_txt = None
+
+        if self.params.guidance_embed:
+            if guidance is not None:
+                vec = vec + self.guidance_in(timestep_embedding(guidance, 256).to(img.dtype))
+
+        if txt_mask is not None and not torch.is_floating_point(txt_mask):
+            txt_mask = (txt_mask - 1).to(img.dtype) * torch.finfo(img.dtype).max
+
+        txt = self.txt_in(txt, timesteps, txt_mask, transformer_options=transformer_options)
+
+        if self.cond_type_embedding is not None:
+            self.cond_type_embedding.to(txt.device)
+            cond_emb = self.cond_type_embedding(torch.zeros_like(txt[:, :, 0], device=txt.device, dtype=torch.long))
+            txt = txt + cond_emb.to(txt.dtype)
+
+        if self.byt5_in is not None and txt_byt5 is not None:
+            txt_byt5 = self.byt5_in(txt_byt5)
+            if self.cond_type_embedding is not None:
+                cond_emb = self.cond_type_embedding(torch.ones_like(txt_byt5[:, :, 0], device=txt_byt5.device, dtype=torch.long))
+                txt_byt5 = txt_byt5 + cond_emb.to(txt_byt5.dtype)
+                txt = torch.cat((txt_byt5, txt), dim=1) # byt5 first for HunyuanVideo1.5
+            else:
+                txt = torch.cat((txt, txt_byt5), dim=1)
+            txt_byt5_ids = torch.zeros((txt_ids.shape[0], txt_byt5.shape[1], txt_ids.shape[-1]), device=txt_ids.device, dtype=txt_ids.dtype)
+            txt_ids = torch.cat((txt_ids, txt_byt5_ids), dim=1)
+
+        if clip_fea is not None:
+            txt_vision_states = self.vision_in(clip_fea)
+            if self.cond_type_embedding is not None:
+                cond_emb = self.cond_type_embedding(2 * torch.ones_like(txt_vision_states[:, :, 0], dtype=torch.long, device=txt_vision_states.device))
+                txt_vision_states = txt_vision_states + cond_emb
+            txt = torch.cat((txt_vision_states.to(txt.dtype), txt), dim=1)
+            extra_txt_ids = torch.zeros((txt_ids.shape[0], txt_vision_states.shape[1], txt_ids.shape[-1]), device=txt_ids.device, dtype=txt_ids.dtype)
+            txt_ids = torch.cat((txt_ids, extra_txt_ids), dim=1)
+
+        ids = torch.cat((img_ids, txt_ids), dim=1)
+        pe = self.pe_embedder(ids)
+
+        img_len = img.shape[1]
+        if txt_mask is not None:
+            attn_mask_len = img_len + txt.shape[1]
+            attn_mask = torch.zeros((1, 1, attn_mask_len), dtype=img.dtype, device=img.device)
+            attn_mask[:, 0, img_len:] = txt_mask
+        else:
+            attn_mask = None
+
+        blocks_replace = patches_replace.get("dit", {})
+        
+        ori_img = img.clone()
+        for i, block in enumerate(self.double_blocks):
+            if ("double_block", i) in blocks_replace:
+                def block_wrap(args):
+                    out = {}
+                    out["img"], out["txt"] = block(img=args["img"], txt=args["txt"], vec=args["vec"], pe=args["pe"], attn_mask=args["attention_mask"], modulation_dims_img=args["modulation_dims_img"], modulation_dims_txt=args["modulation_dims_txt"], transformer_options=args["transformer_options"])
+                    return out
+
+                out = blocks_replace[("double_block", i)]({"img": img, "txt": txt, "vec": vec, "pe": pe, "attention_mask": attn_mask, 'modulation_dims_img': modulation_dims, 'modulation_dims_txt': modulation_dims_txt, 'transformer_options': transformer_options}, {"original_block": block_wrap})
+                txt = out["txt"]
+                img = out["img"]
+            else:
+                img, txt = block(img=img, txt=txt, vec=vec, pe=pe, attn_mask=attn_mask, modulation_dims_img=modulation_dims, modulation_dims_txt=modulation_dims_txt, transformer_options=transformer_options)
+
+            if control is not None: # Controlnet
+                control_i = control.get("input")
+                if i < len(control_i):
+                    add = control_i[i]
+                    if add is not None:
+                        img += add
+
+        img = torch.cat((img, txt), 1)
+
+        for i, block in enumerate(self.single_blocks):
+            if ("single_block", i) in blocks_replace:
+                def block_wrap(args):
+                    out = {}
+                    out["img"] = block(args["img"], vec=args["vec"], pe=args["pe"], attn_mask=args["attention_mask"], modulation_dims=args["modulation_dims"], transformer_options=args["transformer_options"])
+                    return out
+
+                out = blocks_replace[("single_block", i)]({"img": img, "vec": vec, "pe": pe, "attention_mask": attn_mask, 'modulation_dims': modulation_dims, 'transformer_options': transformer_options}, {"original_block": block_wrap})
+                img = out["img"]
+            else:
+                img = block(img, vec=vec, pe=pe, attn_mask=attn_mask, modulation_dims=modulation_dims, transformer_options=transformer_options)
+
+            if control is not None: # Controlnet
+                control_o = control.get("output")
+                if i < len(control_o):
+                    add = control_o[i]
+                    if add is not None:
+                        img[:, : img_len] += add
+
+        img = img[:, : img_len]
+        
+
+        cur_residual = img - ori_img
+        if self.calibration_data['step_count'] >= 2:
+            # Calculate calibration metrics
+            norm_ratio = (cur_residual.norm(dim=-1) / self.previous_residual[self.calibration_data["step_count"]%2].norm(dim=-1)).mean().item()
+            norm_std = (cur_residual.norm(dim=-1) / self.previous_residual[self.calibration_data["step_count"]%2].norm(dim=-1)).std().item()
+            cos_dist = (1 - torch.nn.functional.cosine_similarity(cur_residual, self.previous_residual[self.calibration_data["step_count"]%2], dim=-1, eps=1e-8)).mean().item()
+            
+            # Store metrics
+            self.calibration_data['norm_ratios'].append(round(norm_ratio, 5))
+            self.calibration_data['norm_stds'].append(round(norm_std, 5))
+            self.calibration_data['cos_dists'].append(round(cos_dist, 5))
+            if self.calibration_data['step_count'] >= (total_infer_steps*2-1):
+                print("mag_ratios")
+                print(self.calibration_data['norm_ratios'])
+                print("mag_ratio_std")
+                print(self.calibration_data['norm_stds'])
+                print("mag_cos_dist")
+                print(self.calibration_data['cos_dists'])
+        self.previous_residual[self.calibration_data["step_count"]%2] = cur_residual.detach()
+        self.calibration_data['step_count'] += 1    
+        # print(self.calibration_data['step_count'])
+            
+        if ref_latent is not None:
+            img = img[:, ref_latent.shape[1]:]
+        img = self.final_layer(img, vec, modulation_dims=modulation_dims)  # (N, T, patch_size ** 2 * out_channels)
+
+        shape = initial_shape[-len(self.patch_size):]
+        for i in range(len(shape)):
+            shape[i] = shape[i] // self.patch_size[i]
+        img = img.reshape([img.shape[0]] + shape + [self.out_channels] + self.patch_size)
+        if img.ndim == 8:
+            img = img.permute(0, 4, 1, 5, 2, 6, 3, 7)
+            img = img.reshape(initial_shape[0], self.out_channels, initial_shape[2], initial_shape[3], initial_shape[4])
+        else:
+            img = img.permute(0, 3, 1, 4, 2, 5)
+            img = img.reshape(initial_shape[0], self.out_channels, initial_shape[2], initial_shape[3])
+        return img
+
+
 def magcache_chroma_calibration_forward(
         self,
         img: Tensor,
@@ -334,7 +691,7 @@ class MagCacheCalibration:
         return {
             "required": {
                 "model": ("MODEL", {"tooltip": "The diffusion model the MagCache will be applied to."}),
-                "model_type": (["chroma_calibration", "flux_calibration", "flux_kontext_calibration"], {"default": "chroma_calibration", "tooltip": "Supported diffusion model."}),
+                "model_type": (["chroma_calibration", "flux_calibration", "flux_kontext_calibration", "hunyuanvideo1.5"], {"default": "chroma_calibration", "tooltip": "Supported diffusion model."}),
             }
         }
     
@@ -351,7 +708,7 @@ class MagCacheCalibration:
         diffusion_model = new_model.get_model_object("diffusion_model")
 
         if "chroma_calibration" in model_type:
-            is_cfg = False
+            is_cfg = True
             context = patch.multiple(
                 diffusion_model,
                 forward_orig=magcache_chroma_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
@@ -361,6 +718,12 @@ class MagCacheCalibration:
             context = patch.multiple(
                 diffusion_model,
                 forward_orig=magcache_flux_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
+            )
+        elif "hunyuanvideo1.5" in model_type:
+            is_cfg = True # only support cfg
+            context = patch.multiple(
+                diffusion_model,
+                forward_orig=magcache_hunyuan15_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
             )
         else:
             raise ValueError(f"Unknown type {model_type}")
