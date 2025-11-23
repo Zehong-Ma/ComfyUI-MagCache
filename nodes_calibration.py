@@ -322,7 +322,7 @@ def magcache_qwen_image_calibration_forward(
                 print(self.calibration_data['cos_dists'])
         self.previous_residual[self.calibration_data["step_count"]%2] = cur_residual.detach()
         self.calibration_data['step_count'] += 1    
-        # print(self.calibration_data['step_count'])
+        print(self.calibration_data['step_count'])
         
         
         hidden_states = self.norm_out(hidden_states, temb)
@@ -691,7 +691,7 @@ class MagCacheCalibration:
         return {
             "required": {
                 "model": ("MODEL", {"tooltip": "The diffusion model the MagCache will be applied to."}),
-                "model_type": (["chroma_calibration", "flux_calibration", "flux_kontext_calibration", "hunyuanvideo1.5"], {"default": "chroma_calibration", "tooltip": "Supported diffusion model."}),
+                "model_type": (["chroma_calibration", "flux_calibration", "flux_kontext_calibration", "hunyuanvideo1.5", "qwen_image"], {"default": "chroma_calibration", "tooltip": "Supported diffusion model."}),
             }
         }
     
@@ -719,6 +719,17 @@ class MagCacheCalibration:
                 diffusion_model,
                 forward_orig=magcache_flux_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
             )
+        elif "qwen_image" in model_type:
+            is_cfg = True
+            context = patch.multiple(
+                diffusion_model,
+                _forward=magcache_qwen_image_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
+            )
+            # context = patch.multiple(
+            #     diffusion_model,
+            #     forward_orig=magcache_qwen_image_calibration_forward.__get__(diffusion_model, diffusion_model.__class__)
+            # )
+            
         elif "hunyuanvideo1.5" in model_type:
             is_cfg = True # only support cfg
             context = patch.multiple(

@@ -19,6 +19,7 @@ SUPPORTED_MODELS_MAG_RATIOS = {
     "flux": np.array([1.0]+[1.21094, 1.11719, 1.07812, 1.0625, 1.03906, 1.03125, 1.03906, 1.02344, 1.03125, 1.02344, 0.98047, 1.01562, 1.00781, 1.0, 1.00781, 1.0, 1.00781, 1.0, 1.0, 0.99609, 0.99609, 0.98047, 0.98828, 0.96484, 0.95703, 0.93359, 0.89062]),
     "flux_kontext": np.array([1.0]+[1.21875, 1.0625, 1.03125, 1.03125, 1.0, 1.00781, 1.03906, 0.98047, 1.03125, 0.96875, 1.02344, 1.0, 0.99219, 1.02344, 0.98047, 0.95703, 0.98828, 0.98047, 0.88672]),
     "chroma": np.array([1.0]*2+[1.00781, 1.01562, 1.03906, 1.03906, 1.05469, 1.05469, 1.07031, 1.07031, 1.04688, 1.04688, 1.03906, 1.03906, 1.03906, 1.03906, 1.01562, 1.01562, 1.05469, 1.05469, 0.99609, 0.99609, 1.02344, 1.02344, 1.01562, 1.01562, 0.99609, 0.99609, 1.0, 1.0, 0.99219, 0.99219, 1.00781, 1.00781, 1.00781, 1.00781, 0.97656, 0.97656, 0.98828, 0.98828, 0.97266, 0.97266, 1.0, 1.0, 0.93359, 0.93359, 0.94922, 0.94922, 0.92578, 0.92578, 1.0625, 1.0625]),
+    "qwen_image": np.array([1.0]*2 +[1.6875, 1.6875, 1.25, 1.25, 1.34375, 1.33594, 1.11719, 1.11719, 1.10938, 1.10938, 1.13281, 1.13281, 1.14062, 1.13281, 1.10156, 1.10156, 1.14844, 1.14844, 1.07812, 1.07812, 1.09375, 1.09375, 1.07812, 1.07812, 1.07812, 1.07031, 1.10156, 1.10156, 1.07031, 1.07031, 1.07812, 1.07812, 1.03906, 1.03906, 1.08594, 1.08594, 1.07031, 1.07031, 1.07031, 1.07031, 1.05469, 1.05469, 1.0625, 1.0625, 1.03125, 1.03125, 1.03906, 1.03906, 1.04688, 1.04688, 1.02344, 1.02344, 1.03906, 1.03906, 1.03125, 1.03125, 1.01562, 1.01562, 1.01562, 1.01562, 0.98828, 0.98828, 0.99219, 0.99219, 0.94922, 0.94922, 0.98047, 0.98047, 0.88672, 0.89062, 0.89062, 0.89062, 0.78125, 0.78125, 0.74219, 0.73828, 0.54688, 0.54688]),
     "hunyuan_video": np.array([1.0]+[1.0754, 1.27807, 1.11596, 1.09504, 1.05188, 1.00844, 1.05779, 1.00657, 1.04142, 1.03101, 1.00679, 1.02556, 1.00908, 1.06949, 1.05438, 1.02214, 1.02321, 1.03019, 1.00779, 1.03381, 1.01886, 1.01161, 1.02968, 1.00544, 1.02822, 1.00689, 1.02119, 1.0105, 1.01044, 1.01572, 1.02972, 1.0094, 1.02368, 1.0226, 0.98965, 1.01588, 1.02146, 1.0018, 1.01687, 0.99436, 1.00283, 1.01139, 0.97122, 0.98251, 0.94513, 0.97656, 0.90943, 0.85703, 0.75456]),
     "hunyuan_video1.5": np.array([1.0]*2+[1.01172, 1.00293, 0.9873, 1.0127, 1.01465, 0.98926, 0.99805, 1.00098, 0.99512, 0.99365, 0.99512, 0.99561, 0.99316, 0.99365, 0.99365, 0.99365, 0.99316, 0.99316, 0.99268, 0.99268, 0.9917, 0.9917, 0.99023, 0.99023, 0.98828, 0.98877, 0.98633, 0.98633, 0.9834, 0.9834, 0.97949, 0.97998, 0.97363, 0.97363, 0.96436, 0.96436, 0.94824, 0.94873]),
     "wan2.1_t2v_1.3B": np.array([1.0]*2+[1.0124, 1.02213, 1.00166, 1.0041, 0.99791, 1.00061, 0.99682, 0.99762, 0.99634, 0.99685, 0.99567, 0.99586, 0.99416, 0.99422, 0.99578, 0.99575, 0.9957, 0.99563, 0.99511, 0.99506, 0.99535, 0.99531, 0.99552, 0.99549, 0.99541, 0.99539, 0.9954, 0.99536, 0.99489, 0.99485, 0.99518, 0.99514, 0.99484, 0.99478, 0.99481, 0.99479, 0.99415, 0.99413, 0.99419, 0.99416, 0.99396, 0.99393, 0.99388, 0.99386, 0.99349, 0.99349, 0.99309, 0.99304, 0.9927, 0.9927, 0.99228, 0.99226, 0.99171, 0.9917, 0.99137, 0.99135, 0.99068, 0.99063, 0.99005, 0.99003, 0.98944, 0.98942, 0.98849, 0.98849, 0.98758, 0.98757, 0.98644, 0.98643, 0.98504, 0.98503, 0.9836, 0.98359, 0.98202, 0.98201, 0.97977, 0.97978, 0.97717, 0.97718, 0.9741, 0.97411, 0.97003, 0.97002, 0.96538, 0.96541, 0.9593, 0.95933, 0.95086, 0.95089, 0.94013, 0.94019, 0.92402, 0.92414, 0.90241, 0.9026, 0.86821, 0.86868, 0.81838, 0.81939]),
@@ -799,6 +800,145 @@ def magcache_wan_vace_forward(
         x = self.unpatchify(x, grid_sizes)
         return x
 
+def magcache_qwen_image_forward(
+        self,
+        x,
+        timesteps,
+        context,
+        attention_mask=None,
+        guidance: torch.Tensor = None,
+        ref_latents=None,
+        transformer_options={},
+        control=None,
+        **kwargs
+    ):
+        timestep = timesteps
+        encoder_hidden_states = context
+        encoder_hidden_states_mask = attention_mask
+
+        hidden_states, img_ids, orig_shape = self.process_img(x)
+        num_embeds = hidden_states.shape[1]
+
+        if ref_latents is not None:
+            h = 0
+            w = 0
+            index = 0
+            index_ref_method = kwargs.get("ref_latents_method", "index") == "index"
+            for ref in ref_latents:
+                if index_ref_method:
+                    index += 1
+                    h_offset = 0
+                    w_offset = 0
+                else:
+                    index = 1
+                    h_offset = 0
+                    w_offset = 0
+                    if ref.shape[-2] + h > ref.shape[-1] + w:
+                        w_offset = w
+                    else:
+                        h_offset = h
+                    h = max(h, ref.shape[-2] + h_offset)
+                    w = max(w, ref.shape[-1] + w_offset)
+
+                kontext, kontext_ids, _ = self.process_img(ref, index=index, h_offset=h_offset, w_offset=w_offset)
+                hidden_states = torch.cat([hidden_states, kontext], dim=1)
+                img_ids = torch.cat([img_ids, kontext_ids], dim=1)
+
+        txt_start = round(max(((x.shape[-1] + (self.patch_size // 2)) // self.patch_size) // 2, ((x.shape[-2] + (self.patch_size // 2)) // self.patch_size) // 2))
+        txt_ids = torch.arange(txt_start, txt_start + context.shape[1], device=x.device).reshape(1, -1, 1).repeat(x.shape[0], 1, 3)
+        ids = torch.cat((txt_ids, img_ids), dim=1)
+        image_rotary_emb = self.pe_embedder(ids).to(x.dtype).contiguous()
+        del ids, txt_ids, img_ids
+
+        hidden_states = self.img_in(hidden_states)
+        encoder_hidden_states = self.txt_norm(encoder_hidden_states)
+        encoder_hidden_states = self.txt_in(encoder_hidden_states)
+
+        if guidance is not None:
+            guidance = guidance * 1000
+
+        temb = (
+            self.time_text_embed(timestep, hidden_states)
+            if guidance is None
+            else self.time_text_embed(timestep, guidance, hidden_states)
+        )
+
+        patches_replace = transformer_options.get("patches_replace", {})
+        patches = transformer_options.get("patches", {})
+        blocks_replace = patches_replace.get("dit", {})
+        
+        magcache_thresh = transformer_options.get("magcache_thresh")
+        magcache_K = transformer_options.get("magcache_K")
+        mag_ratios = transformer_options.get("mag_ratios")
+        enable_magcache = transformer_options.get("enable_magcache", False)
+        total_infer_steps = transformer_options.get("total_infer_steps")
+
+        # MagCache initialization
+        if not hasattr(self, 'accumulated_err'):
+            # forward conditional and unconditional seperately.
+            self.accumulated_err = [0.0, 0.0]
+            self.accumulated_ratio = [1.0, 1.0]
+            self.accumulated_steps = [0, 0]
+            self.residual_cache = [None, None]
+            self.cnt = 0            
+        skip_forward = False
+        if enable_magcache:  # Skip certain steps if needed
+            cur_mag_ratio = mag_ratios[self.cnt]
+            self.accumulated_ratio[self.cnt%2] = self.accumulated_ratio[self.cnt%2] * cur_mag_ratio
+            self.accumulated_steps[self.cnt%2] += 1
+            cur_skip_err = np.abs(1 - self.accumulated_ratio[self.cnt%2])
+            self.accumulated_err[self.cnt%2] += cur_skip_err
+            if self.accumulated_err[self.cnt%2] < magcache_thresh and self.accumulated_steps[self.cnt%2] <= magcache_K:
+                skip_forward = True
+            else:
+                self.accumulated_err[self.cnt%2] = 0
+                self.accumulated_steps[self.cnt%2] = 0
+                self.accumulated_ratio[self.cnt%2] = 1.0
+                
+        if skip_forward:
+            hidden_states += self.residual_cache[self.cnt%2]
+        else:
+            ori_hidden_states = hidden_states.clone()
+            for i, block in enumerate(self.transformer_blocks):
+                if ("double_block", i) in blocks_replace:
+                    def block_wrap(args):
+                        out = {}
+                        out["txt"], out["img"] = block(hidden_states=args["img"], encoder_hidden_states=args["txt"], encoder_hidden_states_mask=encoder_hidden_states_mask, temb=args["vec"], image_rotary_emb=args["pe"], transformer_options=args["transformer_options"])
+                        return out
+                    out = blocks_replace[("double_block", i)]({"img": hidden_states, "txt": encoder_hidden_states, "vec": temb, "pe": image_rotary_emb, "transformer_options": transformer_options}, {"original_block": block_wrap})
+                    hidden_states = out["img"]
+                    encoder_hidden_states = out["txt"]
+                else:
+                    encoder_hidden_states, hidden_states = block(
+                        hidden_states=hidden_states,
+                        encoder_hidden_states=encoder_hidden_states,
+                        encoder_hidden_states_mask=encoder_hidden_states_mask,
+                        temb=temb,
+                        image_rotary_emb=image_rotary_emb,
+                        transformer_options=transformer_options,
+                    )
+
+                if "double_block" in patches:
+                    for p in patches["double_block"]:
+                        out = p({"img": hidden_states, "txt": encoder_hidden_states, "x": x, "block_index": i, "transformer_options": transformer_options})
+                        hidden_states = out["img"]
+                        encoder_hidden_states = out["txt"]
+
+                if control is not None: # Controlnet
+                    control_i = control.get("input")
+                    if i < len(control_i):
+                        add = control_i[i]
+                        if add is not None:
+                            hidden_states[:, :add.shape[1]] += add
+            self.residual_cache[self.cnt%2] = hidden_states - ori_hidden_states
+        self.cnt += 1
+        hidden_states = self.norm_out(hidden_states, temb)
+        hidden_states = self.proj_out(hidden_states)
+
+        hidden_states = hidden_states[:, :num_embeds].view(orig_shape[0], orig_shape[-2] // 2, orig_shape[-1] // 2, orig_shape[1], 2, 2)
+        hidden_states = hidden_states.permute(0, 3, 1, 4, 2, 5)
+        return hidden_states.reshape(orig_shape)[:, :, :, :x.shape[-2], :x.shape[-1]]
+
 def magcache_chroma_forward(
         self,
         img: Tensor,
@@ -942,7 +1082,7 @@ class MagCache:
         return {
             "required": {
                 "model": ("MODEL", {"tooltip": "The diffusion model the MagCache will be applied to."}),
-                "model_type": (["flux", "flux_kontext", "chroma", "hunyuan_video", "hunyuan_video1.5", "wan2.1_t2v_1.3B", "wan2.1_t2v_14B", "wan2.1_i2v_480p_14B", "wan2.1_i2v_720p_14B", "wan2.1_vace_1.3B", "wan2.1_vace_14B"], {"default": "wan2.1_t2v_1.3B", "tooltip": "Supported diffusion model."}),
+                "model_type": (["flux", "flux_kontext", "chroma", "qwen_image", "hunyuan_video", "hunyuan_video1.5", "wan2.1_t2v_1.3B", "wan2.1_t2v_14B", "wan2.1_i2v_480p_14B", "wan2.1_i2v_720p_14B", "wan2.1_vace_1.3B", "wan2.1_vace_14B"], {"default": "wan2.1_t2v_1.3B", "tooltip": "Supported diffusion model."}),
                 "magcache_thresh": ("FLOAT", {"default": 0.06, "min": 0.0, "max": 0.3, "step": 0.01, "tooltip": "How strongly to cache the output of diffusion model. This value must be non-negative."}),
                 "retention_ratio": ("FLOAT", {"default": 0.2, "min": 0.1, "max": 0.3, "step": 0.01, "tooltip": "The start percentage of the steps that will apply MagCache."}),
                 "magcache_K": ("INT", {"default": 2, "min": 0, "max": 6, "step": 1, "tooltip": "The maxium skip steps of MagCache."}),
@@ -985,6 +1125,12 @@ class MagCache:
             context = patch.multiple(
                 diffusion_model,
                 forward_orig=magcache_chroma_forward.__get__(diffusion_model, diffusion_model.__class__)
+            )
+        elif "qwen_image" in model_type:
+            is_cfg = True
+            context = patch.multiple(
+                diffusion_model,
+                _forward=magcache_qwen_image_forward.__get__(diffusion_model, diffusion_model.__class__)
             )
         elif "hunyuan_video" == model_type:
             is_cfg = False
