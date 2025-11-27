@@ -1,8 +1,8 @@
 {
   "id": "ecc20583-98c5-4707-83f4-631b49a2bf0b",
   "revision": 0,
-  "last_node_id": 112,
-  "last_link_id": 287,
+  "last_node_id": 114,
+  "last_link_id": 291,
   "nodes": [
     {
       "id": 8,
@@ -16,7 +16,7 @@
         46
       ],
       "flags": {},
-      "order": 9,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -139,49 +139,6 @@
       ]
     },
     {
-      "id": 44,
-      "type": "CLIPTextEncode",
-      "pos": [
-        -220,
-        50
-      ],
-      "size": [
-        422.84503173828125,
-        164.31304931640625
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 205
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "slot_index": 0,
-          "links": [
-            272
-          ]
-        }
-      ],
-      "title": "CLIP Text Encode (Positive Prompt)",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode",
-        "cnr_id": "comfy-core",
-        "ver": "0.3.68"
-      },
-      "widgets_values": [
-        "A paper airplane released from the top of a skyscraper, gliding through urban canyons, crossing traffic, flying over streets, spiraling upward between buildings. The camera follows the paper airplane's perspective, shooting cityscape in first-person POV, finally flying toward the sunset, disappearing in golden light. Creative camera movement, free perspective, dreamlike colors."
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
       "id": 107,
       "type": "EmptyHunyuanVideo15Latent",
       "pos": [
@@ -229,7 +186,7 @@
         78
       ],
       "flags": {},
-      "order": 10,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -274,7 +231,7 @@
         200
       ],
       "flags": {},
-      "order": 6,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -351,7 +308,7 @@
           "type": "MODEL",
           "slot_index": 0,
           "links": [
-            286
+            290
           ]
         }
       ],
@@ -373,6 +330,141 @@
       ]
     },
     {
+      "id": 102,
+      "type": "SaveVideo",
+      "pos": [
+        650,
+        20
+      ],
+      "size": [
+        730,
+        828
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 269
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveVideo",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68"
+      },
+      "widgets_values": [
+        "video/hunyuan_video_1.5",
+        "auto",
+        "h264"
+      ]
+    },
+    {
+      "id": 44,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -220,
+        50
+      ],
+      "size": [
+        422.84503173828125,
+        164.31304931640625
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 205
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            272
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode (Positive Prompt)",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68"
+      },
+      "widgets_values": [
+        "俯视角度，一位有着深色，略带凌乱的长卷发的年轻中国女性，佩戴着闪耀的珍珠项链和圆形金色耳环，她凌乱的头发被风吹散，她微微抬头，望向天空，神情十分哀伤，眼中含着泪水。嘴唇涂着红色口红。背景是带有华丽红色花纹的图案。画面呈现复古电影风格，色调低饱和，带着轻微柔焦，烘托情绪氛围，质感仿佛20世纪90年代的经典胶片风格，营造出怀旧且富有戏剧性的感觉。"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 114,
+      "type": "MagCacheCalibration",
+      "pos": [
+        754.4683378022584,
+        -146.804079623664
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MagCacheCalibration"
+      },
+      "widgets_values": [
+        "hunyuanvideo1.5"
+      ]
+    },
+    {
+      "id": 113,
+      "type": "Note",
+      "pos": [
+        226.07364043667747,
+        -362.4529623566771
+      ],
+      "size": [
+        468.035417554187,
+        249.77239862739282
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Note for MagCache",
+      "properties": {},
+      "widgets_values": [
+        "We calibrate the MagCache using the MagCache Calibration node with 20 euler sampling steps. The calibrated mag_ratios can also be utilized with a different inference steps. \n\nThe following config achieves 1.5x speedup without degrading visual quality.\nmagcache_thresh: 0.03\nmagcache_K: 1\nretention_ratio: 0.25\n\nFor a faster generateing, please utilize the following hyper-parameters, achieving a 1.7x speedup with a balance between quality and speed. \nmagcache_thresh: 0.03\nmagcache_K: 2\nretention_ratio: 0.25\n\nWith more inference steps (30-50), please increase the magcache_thresh to 0.06 and decrease the retension ratio to 0.2\n\nThe following config achieves 1.7x speedup without degrading visual quality.\nmagcache_thresh: 0.06\nmagcache_K: 2\nretention_ratio: 0.2\n\nThe following config achieves 2.1x speedup without degrading visual quality.\nmagcache_thresh: 0.06\nmagcache_K: 3\nretention_ratio: 0.2\n\n"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
       "id": 100,
       "type": "23f96f01-8d55-4804-b218-e42e2bafa41b",
       "pos": [
@@ -384,7 +476,7 @@
         520
       ],
       "flags": {},
-      "order": 8,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -395,7 +487,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 287
+          "link": 291
         },
         {
           "name": "positive",
@@ -458,39 +550,6 @@
       "widgets_values": []
     },
     {
-      "id": 102,
-      "type": "SaveVideo",
-      "pos": [
-        650,
-        20
-      ],
-      "size": [
-        730,
-        828
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "video",
-          "type": "VIDEO",
-          "link": 269
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "SaveVideo",
-        "cnr_id": "comfy-core",
-        "ver": "0.3.68"
-      },
-      "widgets_values": [
-        "video/hunyuan_video_1.5",
-        "auto",
-        "h264"
-      ]
-    },
-    {
       "id": 112,
       "type": "MagCache",
       "pos": [
@@ -502,13 +561,13 @@
         178
       ],
       "flags": {},
-      "order": 7,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
           "name": "model",
           "type": "MODEL",
-          "link": 286
+          "link": 290
         }
       ],
       "outputs": [
@@ -516,7 +575,7 @@
           "name": "model",
           "type": "MODEL",
           "links": [
-            287
+            291
           ]
         }
       ],
@@ -525,9 +584,9 @@
       },
       "widgets_values": [
         "hunyuan_video1.5",
-        0.03,
-        0.25,
-        1,
+        0.06,
+        0.2,
+        2,
         0,
         -2
       ]
@@ -607,7 +666,7 @@
       "LATENT"
     ],
     [
-      286,
+      290,
       12,
       0,
       112,
@@ -615,7 +674,7 @@
       "MODEL"
     ],
     [
-      287,
+      291,
       112,
       0,
       100,
@@ -877,7 +936,7 @@
             },
             "widgets_values": [
               "simple",
-              20,
+              40,
               1
             ]
           },
@@ -1148,10 +1207,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5200099198249751,
+      "scale": 0.6292120029882204,
       "offset": [
-        1340.6097763776763,
-        190.8478393197784
+        709.8860997402827,
+        370.80609259161525
       ]
     },
     "frontendVersion": "1.28.9",
